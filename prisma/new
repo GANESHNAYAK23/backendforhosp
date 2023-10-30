@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// model User {
+//   id       Int    @id @default(autoincrement())
+//   email    String @unique
+//   password String
+// }
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMINISTRATOR
+}
+
+enum Status {
+  SCHEDULED
+  CONFIRMED
+  CANCELED
+  COMPLETED
+  // Add other status values as needed
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  password     String
+  age          Int?
+  sex          String?
+  phone_number String? @unique
+  role         Role
+
+  patient         Patient?       @relation(fields: [patientId], references: [id])
+  patientId       Int?
+  doctor          Doctor?        @relation(fields: [doctorId], references: [id])
+  doctorId        Int?
+  administrator   Administrator? @relation(fields: [administratorId], references: [id])
+  administratorId Int?
+}
+
+model Patient {
+  id                Int           @id @default(autoincrement())
+  // user              User          @relation(fields: [patientId], references: [id])
+  patientId         Int           @unique
+  health_conditions String?
+  appointments      Appointment[]
+  User              User[]
+}
+
+model Doctor {
+  id             Int           @id @default(autoincrement())
+  // user           User          @relation(fields: [doctorId], references: [id])
+  doctorId       Int           @unique
+  specialization String?
+  appointments   Appointment[]
+  User           User[]
+}
+
+model Administrator {
+  id              Int     @id @default(autoincrement())
+  // user            User    @relation(fields: [administratorId], references: [id])
+  administratorId Int     @unique
+  department      String?
+  // other admin-specific fields
+  User            User[]
+}
+
+model Appointment {
+  id               Int       @id @default(autoincrement())
+  patient          Patient   @relation(fields: [patientId], references: [id])
+  patientId        Int
+  doctor           Doctor    @relation(fields: [doctorId], references: [id])
+  doctorId         Int
+  status           Status // Consider using an enum for status
+  appointment_date DateTime?
+  // other appointment details
+}
+
+// npx prisma generate
+// npx prisma migrate dev --name init --create-only
+// npx prisma migrate deploy
