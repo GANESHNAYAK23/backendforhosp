@@ -1,4 +1,3 @@
-
 const express = require('express')
 const cors = require("cors");
 const { PrismaClient } = require('@prisma/client')
@@ -13,128 +12,8 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-//adduser
-// app.get("/addUser", async (req, res) => {
-//     const newUser = await prisma.user.create({
-//       data: {
-//         email: "johndoe@example.com",
-//         password:"123"
-//       },
-//     });
-//     res.json(newUser);
-//   });
 
-
- //add newuser to db from body(working)
-//  app.post("/addUser", async (req, res) => {
-//     try {
-//       const receivedData = req.body;
-//       console.log(receivedData);
-//       const newUser = await prisma.user.create({
-//         data: {
-//           name: receivedData.name,
-//           email: receivedData.email,
-//           password: receivedData.password,
-//           age: receivedData.age,
-//           sex: receivedData.sex,
-//           phone_number: receivedData.phone_number,
-//           role: receivedData.role
-//         },
-//       });
-//       console.log(newUser);
-//       // Send a response back to the client
-//       res.status(200).json({ message: 'Data received successfully!', newUser });
-//     } catch (error) {
-//       console.error("Error occurred: ", error);
-//       // Handle the error and send an appropriate response to the client
-//       res.status(500).json({ error: 'An error occurred while processing your request.' });
-//     }
-//   });
-  
-
-
-  
-
-
-
-  // Delete entries from Doctor, Administrator, and Appointment tables similarly
-  
-  //new user
-//   app.post('/addUser', async (req, res) => {
-//     try {
-//       const responseData = req.body;
-  
-//       let newUser;
-//       let newRoleEntry;
-  
-//       if (reponseData.role === 'PATIENT') {
-//         newUser = await prisma.user.create({
-//           data: {
-//             name:receivedData.name,
-//             email: receivedData.email,
-//             password: receivedData.password,
-//             age:receivedData.age,
-//             sex:receivedData.sex,
-//             phone_number: receivedData.phone_number,
-//             role: 'PATIENT',
-//           },
-//         });
-  
-//         newRoleEntry = await prisma.patient.create({
-//           data: {
-//             patientId: newUser.id,
-//             health_conditions: 'Good', // Example health condition
-//           },
-//         });
-//       } else if (responseData.role === 'DOCTOR') {
-//         newUser = await prisma.user.create({
-//           data: {
-//             name:receivedData.name,
-//             email: receivedData.email,
-//             password: receivedData.password,
-//             age:receivedData.age,
-//             sex:receivedData.sex,
-//             phone_number: receivedData.phone_number,
-//             role: 'DOCTOR',
-//           },
-//         });
-  
-//         newRoleEntry = await prisma.doctor.create({
-//           data: {
-//             doctorId: newUser.id,
-//             specialization: 'TObe added', // Example specialization
-//           },
-//         });
-//       } else if (responseData.role === 'ADMINISTRATOR') {
-//         newUser = await prisma.user.create({
-//           data: {
-//             name:receivedData.name,
-//             email: receivedData.email,
-//             password: receivedData.password,
-//             age:receivedData.age,
-//             sex:receivedData.sex,
-//             phone_number: receivedData.phone_number,
-//             role: 'ADMINISTRATOR',
-//           },
-//         });
-  
-//         newRoleEntry = await prisma.administrator.create({
-//           data: {
-//             administratorId: newUser.id,
-//             department: 'Admin', // Example department details
-//           },
-//         });
-//       } else {
-//         return res.status(400).json({ error: 'Invalid role' });
-//       }
-  
-//       res.status(200).json({ message: 'User and role added successfully', newUser, newRoleEntry });
-//     } catch (error) {
-//       console.error('Error adding user and role:', error);
-//       res.status(500).json({ error: 'Error adding user and role' });
-//     }
-//   });
-  
+// works fine add user
   app.post('/addUser', async (req, res) => {
     try {
       const receivedData = req.body;
@@ -213,6 +92,27 @@ app.get('/', (req, res) => {
     }
   });
 
+//works fine add appointment
+  app.post('/addAppointment', async (req, res) => {
+    try {
+      const receivedData = req.body;
+      console.log(receivedData)
+      let newAppointment=await prisma.appointment.create({
+        data: {
+          patientId: receivedData.patientId,
+          doctorId: receivedData.doctorId,
+          status: 'SCHEDULED',
+          appointment_date: receivedData.appointment_date,
+          appointment_time: receivedData.appointment_time
+        },
+      })
+      res.status(200).json({ message: 'Appointment added successfully', newAppointment });
+    } catch (error) {
+      console.error('Error adding user and role:', error);
+      res.status(500).json({ error: 'Error adding user and role' });
+    }
+
+  })
 
   
   // Endpoint to delete a user by email(works fine)
@@ -247,13 +147,13 @@ app.get('/', (req, res) => {
   });
   
 
-//get all users
+//get all users WORKS FINE
 app.post('/find', async (req, res) => {
   try {
     const alluser = await prisma.user.findMany(
       {
         where: {
-          role:'ADMINISTRATOR'
+          role:'PATIENT'
     
         },
       }
@@ -269,17 +169,16 @@ app.post('/find', async (req, res) => {
 
 
 
-
-
-
-
-  
+//Exectution
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 
 
+
+
+
 // npx prisma generate
 // npx prisma migrate dev --name init --create-only
-// npx prisma migrate deploy
+// npx prisma migrate deploy
