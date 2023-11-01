@@ -6,12 +6,9 @@ const prisma = new PrismaClient()
 const port = 3000
 app.use(express.json());
 app.use(cors());
-
-
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
-
 
 // works fine add user
   app.post('/addUser', async (req, res) => {
@@ -113,10 +110,9 @@ app.get('/', (req, res) => {
     }
 
   })
-
   
   // Endpoint to delete a user by email(works fine)
-  app.delete('/deleteUser', async (req, res) => {
+app.delete('/deleteUser', async (req, res) => {
     try {
       const userEmail = req.body.email;
       console.log(userEmail);
@@ -146,7 +142,6 @@ app.get('/', (req, res) => {
     }
   });
   
-
 //get all users WORKS FINE
 app.post('/find', async (req, res) => {
   try {
@@ -167,7 +162,53 @@ app.post('/find', async (req, res) => {
   
 })
 
+//find all appointments of patient include doctor name 
+app.post('/findAppointment', async (req, res) => {
+  try {
+    const allAppointment = await prisma.appointment.findMany(
+      {
+        where: {
+          patientId: req.body.patientId
+        },
+        include: {
+          doctor: {
+            include:{
+              user: { select: { name: true } }
+            }
+          },
+          patient: {
+            include: {
+              user: { select: { name: true } }
+            }
+          }
 
+        }
+      }
+    );
+    res.status(200).json({ allAppointment });
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).json({ error: 'Error finding user' });
+  }
+})
+
+//upafte the status of appointment of particular patient  works fine
+app.post('/updateStatus', async (req, res) => {
+  try {
+    const updatedAppointment = await prisma.appointment.update({
+      where: {
+        id: req.body.id, // Assuming req.body.id contains the appointment ID
+      },
+      data: {
+        status: req.body.status,
+      },
+    });
+    res.status(200).json({ updatedAppointment });
+  } catch (error) {
+    console.error('Error updating appointment status:', error);
+    res.status(500).json({ error: 'Error updating appointment status' });
+  }
+});
 
 //Exectution
 app.listen(port, () => {
