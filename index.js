@@ -27,9 +27,9 @@ app.get('/', (req, res) => {
             name: receivedData.name,
             email: receivedData.email,
             password: receivedData.password,
-            age: receivedData.age,
+            age: parseInt(receivedData.age),
             sex: receivedData.sex,
-            phone_number: receivedData.phone_number,
+            phone_number:receivedData.phone_number,
             role: 'PATIENT',
           },
         });
