@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 const port = 3000
 app.use(express.json());
 app.use(cors());
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
@@ -179,6 +180,28 @@ app.post('/find', async (req, res) => {
       }
 
     );
+    console.log(alluser);
+    res.status(200).json({ alluser });
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).json({ error: 'Error finding user' });
+  }
+  
+})
+
+//find patients all
+app.post('/findPatient', async (req, res) => {
+  try {
+    const alluser = await prisma.user.findMany(
+      {
+        where: {
+          role:'PATIENT'
+    
+        },
+      }
+
+    );
+    console.log(alluser);
     res.status(200).json({ alluser });
   } catch (error) {
     console.error('Error finding user:', error);
