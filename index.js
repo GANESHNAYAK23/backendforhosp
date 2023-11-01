@@ -10,6 +10,8 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+
+
 // works fine add user
   app.post('/addUser', async (req, res) => {
     try {
@@ -89,6 +91,29 @@ app.get('/', (req, res) => {
     }
   });
 
+  //login validation(works fine)
+  app.post('/login', async (req, res) => {
+    try {
+      const receivedData = req.body;
+      console.log(receivedData)
+      const user = await prisma.user.findUnique({
+        where: {
+          email: receivedData.email,
+        },
+      });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      if (user.password !== receivedData.password) {
+        return res.status(401).json({ error: 'Invalid password' });
+      }
+      res.status(200).json({ message: 'Login successful', user });
+    } catch (error) {
+      console.error('Error logging in:', error);
+      res.status(500).json({ error: 'Error logging in' });
+    }
+  })
+
 //works fine add appointment
   app.post('/addAppointment', async (req, res) => {
     try {
@@ -148,7 +173,7 @@ app.post('/find', async (req, res) => {
     const alluser = await prisma.user.findMany(
       {
         where: {
-          role:'PATIENT'
+          role:'DOCTOR'
     
         },
       }
@@ -209,6 +234,8 @@ app.post('/updateStatus', async (req, res) => {
     res.status(500).json({ error: 'Error updating appointment status' });
   }
 });
+
+
 
 //Exectution
 app.listen(port, () => {
